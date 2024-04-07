@@ -190,8 +190,6 @@ class _ClockCcState extends State<ClockCc> {
       stream: clockStream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          //todo: falta mejorar esta seccion
-
           final date = snapshot.data!;
 
           String hour =
@@ -214,3 +212,57 @@ class _ClockCcState extends State<ClockCc> {
     );
   }
 }
+
+//* este es un boton personalizado
+
+class ButtonPrimaryCc extends StatelessWidget {
+  final VoidCallback onPressed;
+  final String text;
+  final IconData icon;
+  final double? width;
+  final double? height;
+  final TextStyle? textStyle;
+  final Color bgColor;
+  final Color
+      colorData; //cambiar el color del icono y texto del boton, por defecto es blanco
+  final double? iconSize;
+  const ButtonPrimaryCc(
+      {super.key,
+      required this.onPressed,
+      required this.text,
+      required this.icon,
+      this.width,
+      this.height,
+      this.textStyle,
+      this.bgColor = Colors.blueAccent,
+      this.colorData = Colors.white,
+      this.iconSize});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+            color: bgColor, borderRadius: BorderRadius.circular(20)),
+        child: TextButton.icon(
+          onPressed: onPressed,
+          icon: Icon(
+            icon,
+            color: colorData,
+            size: iconSize,
+          ),
+          label: Text(
+            text,
+            style: textStyle ?? TextStyle(color: colorData),
+          ),
+        ));
+  }
+}
+
+//todo: Este es un boton como icono que cambia al ser presionado
+
+//todo:  Añadir animaciones a los botones
+
+//todo: imagen que aumenta su tamaño cada que se toca
+

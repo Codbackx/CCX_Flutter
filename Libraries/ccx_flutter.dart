@@ -97,9 +97,9 @@ void configureStatusBarColorAndOthersCc(
   ));
 }
 
-//* Este es un text formfield personalizado
+//* Este es un text formfield personalizado, tambien funciona como campo de contraseña
 
-class TextFormFieldCc extends StatelessWidget {
+class TextFormFieldCc extends StatefulWidget {
   final double? height;
   final String? hintText;
   final Color? bgColor;
@@ -115,6 +115,9 @@ class TextFormFieldCc extends StatelessWidget {
   final Color? colorPrefixIcon;
   final double? sizePrefixIcon;
   final double? width;
+  final bool isPassword; //para verificar si es un campo de contarseña o no
+  final TextInputType? keyboardType;
+  final int? maxLines;
   const TextFormFieldCc(
       {super.key,
       this.height,
@@ -131,42 +134,64 @@ class TextFormFieldCc extends StatelessWidget {
       this.sizeSuffixIcon,
       this.colorPrefixIcon,
       this.sizePrefixIcon,
-      this.width});
+      this.width,
+      this.isPassword = false,
+      this.keyboardType,
+      this.maxLines});
+
+  @override
+  State<TextFormFieldCc> createState() => _TextFormFieldCcState();
+}
+
+class _TextFormFieldCcState extends State<TextFormFieldCc> {
+  //variable para ocultar el texto en caso sea verdadero
+  bool obscureText = false;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: height,
-      width: width,
+      height: widget.height,
+      width: widget.width,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-          color: bgColor, borderRadius: BorderRadius.circular(40)),
+          color: widget.bgColor, borderRadius: BorderRadius.circular(40)),
       child: TextField(
-          style: fontStyle,
-          controller: controller,
+          keyboardType: widget.keyboardType,
+          maxLines: widget.maxLines,
+          obscureText: widget.isPassword ? obscureText : false,
+          style: widget.fontStyle,
+          controller: widget.controller,
           //verifica si suffix icon existe para que se muestre, si no no se muestra nada
           decoration: InputDecoration(
-              suffixIcon: suffixIcon != null
+              suffixIcon: widget.isPassword //primero verifica si es password
                   ? IconButton(
-                      onPressed: suffixOnPressed,
+                      onPressed: () {
+                        setState(() {
+                          obscureText = !obscureText;
+                        });
+                      },
+                      icon: const Icon(Icons.remove_red_eye))
+                  : widget.suffixIcon != null
+                      ? IconButton(
+                          onPressed: widget.suffixOnPressed,
+                          icon: Icon(
+                            widget.suffixIcon,
+                            color: widget.colorSuffixIcon,
+                            size: widget.sizeSuffixIcon,
+                          ))
+                      : null,
+              prefixIcon: widget.prefixIcon != null
+                  ? IconButton(
+                      onPressed: widget.suffixOnPressed,
                       icon: Icon(
-                        suffixIcon,
-                        color: colorSuffixIcon,
-                        size: sizeSuffixIcon,
+                        widget.prefixIcon,
+                        color: widget.colorPrefixIcon,
+                        size: widget.sizePrefixIcon,
                       ))
                   : null,
-              prefixIcon: prefixIcon != null
-                  ? IconButton(
-                      onPressed: suffixOnPressed,
-                      icon: Icon(
-                        prefixIcon,
-                        color: colorPrefixIcon,
-                        size: sizePrefixIcon,
-                      ))
-                  : null,
-              hintText: hintText,
+              hintText: widget.hintText,
               border: InputBorder.none,
-              hintStyle: hintStyle)),
+              hintStyle: widget.hintStyle)),
     );
   }
 }
@@ -260,9 +285,45 @@ class ButtonPrimaryCc extends StatelessWidget {
   }
 }
 
-//todo: Este es un boton como icono que cambia al ser presionado
+//* Este es un boton que cambia de icono con animacion al ser presionado
+//! falta mejorar para que haga el cambio de icono
+
+class AnimatedIconButtonCc extends StatefulWidget {
+  final AnimatedIconData iconData;
+  const AnimatedIconButtonCc({super.key, required this.iconData});
+
+  @override
+  State<AnimatedIconButtonCc> createState() => _AnimatedIconButtonCcState();
+}
+
+class _AnimatedIconButtonCcState extends State<AnimatedIconButtonCc>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        _controller.isCompleted ? _controller.reverse() : _controller.forward;
+      },
+      child: AnimatedIcon(
+        icon: widget.iconData,
+        progress: _controller,
+        size: 30,
+      ),
+    );
+  }
+}
 
 //todo:  Añadir animaciones a los botones
 
 //todo: imagen que aumenta su tamaño cada que se toca
-
